@@ -55,6 +55,8 @@ func Register(c context.Context, ctx *app.RequestContext) {
 func UserInfo(c context.Context, ctx *app.RequestContext) {
 	var err error
 	_, err = jwt.GetUserId(c, ctx)
+	// var userId int64
+	// userId, err = jwt.GetUserId(c, ctx)
 	if err != nil {
 		ctx.JSON(consts.StatusOK, api.UserResponse{
 			Response: api.Response{

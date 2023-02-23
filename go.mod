@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/cloudwego/hertz v0.5.1
-	github.com/gavv/httpexpect/v2 v2.8.0
+	github.com/gavv/httpexpect/v2 v2.12.0
 	github.com/rs/zerolog v1.29.0
 	github.com/stretchr/testify v1.7.1
 	gopkg.in/ini.v1 v1.67.0

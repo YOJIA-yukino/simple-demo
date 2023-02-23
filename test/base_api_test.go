@@ -50,9 +50,10 @@ func TestUserAction(t *testing.T) {
 	loginResp.Value("user_id").Number().Gt(0)
 	loginResp.Value("token").String().Length().Gt(0)
 
+	userId := loginResp.Value("user_id").Number().Raw() //
 	token := loginResp.Value("token").String().Raw()
 	userResp := e.GET("/douyin/user/").
-		WithQuery("token", token).
+		WithQuery("user_id", userId).WithQuery("token", token). //
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
@@ -70,6 +71,7 @@ func TestPublish(t *testing.T) {
 
 	publishResp := e.POST("/douyin/publish/action/").
 		WithMultipart().
+		WithQuery("token", token).WithQuery("title", "Bear").
 		WithFile("data", "../public/bear.mp4").
 		WithFormField("token", token).
 		WithFormField("title", "Bear").

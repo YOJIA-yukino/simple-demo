@@ -12,7 +12,7 @@ type Video struct {
 	VideoName     string `gorm:"type:varchar(100);not null"`
 	UserID        int64  `gorm:"type:BIGINT;not null;index:idx_author_id"`
 	FavoriteCount int32  `gorm:"type:INT;not null;default:0"`
-	CommentCount  int32  `gorm:"type:INT;not null;default:0"`
+	CommentCount  int64  `gorm:"type:BIGINT;not null;default:0"`
 	PlayURL       string `gorm:"type:varchar(200);not null"`
 	CoverURL      string `gorm:"type:varchar(200);not null"`
 }
@@ -29,11 +29,13 @@ type User struct {
 
 // Comment 评论：数据库实体
 type Comment struct {
-	ID        uint `gorm:"primarykey"`
-	CreatedAt time.Time
-	UserID    int64  `gorm:"type:BIGINT;not null;index:idx_user_id;评论用户ID" json:"user_id"`
-	VideoID   int64  `gorm:"type:BIGINT;not null;index:idx_video_id;comment:被评论视频ID" json:"video_id"`
-	Content   string `gorm:"type:varchar(300);not null;comment:评论内容" json:"content"`
+	ID         uint `gorm:"primarykey"`
+	CreatedAt  time.Time
+	UserID     int64  `gorm:"type:BIGINT;not null;index:idx_user_id;评论用户ID" json:"user_id"`
+	VideoID    int64  `gorm:"type:BIGINT;not null;index:idx_video_id;comment:被评论视频ID" json:"video_id"`
+	Content    string `gorm:"type:varchar(300);not null;comment:评论内容" json:"content"`
+	LikeCount  int64  `gorm:"type:BIGINT;not null;default:0;comment:评论的点赞数" json:"like_count"`
+	TeaseCount int64  `gorm:"type:BIGINT;not null;default:0;comment:评论的diss数量" json:"tease_count"`
 }
 
 // Favourite 点赞：数据库实体

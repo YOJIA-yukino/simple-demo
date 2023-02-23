@@ -62,3 +62,8 @@ const (
 	FavoriteAction   = 1
 	UnFavoriteAction = 2
 )
+
+const (
+	PushComment   = 1
+	DeleteComment = 2
+)
