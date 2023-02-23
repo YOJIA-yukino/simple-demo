@@ -24,8 +24,8 @@ func initAll() {
 
 func main() {
 	initAll()
-	hServer := server.Default(server.WithHostPorts(fmt.Sprintf("127.0.0.1:%s", initialization.Port)))
-
+	hServer := server.Default(server.WithHostPorts(fmt.Sprintf("10.15.149.112:%s", initialization.Port)))
+	// hServer := server.Default(server.WithHostPorts(fmt.Sprintf("127.0.0.1:%s", initialization.Port)))
 	router.InitRouter(hServer)
 	hServer.Spin()
 }

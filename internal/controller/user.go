@@ -9,7 +9,6 @@ import (
 	"github.com/YOJIA-yukino/simple-douyin-backend/internal/utils/jwt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"strconv"
 )
 
 // usersLoginInfo use map to store user info, and key is username+password for demo
@@ -53,10 +52,11 @@ func Register(c context.Context, ctx *app.RequestContext) {
 }
 
 func UserInfo(c context.Context, ctx *app.RequestContext) {
+	// 注意这里 test文件和接口文档有出入
 	var err error
-	_, err = jwt.GetUserId(c, ctx)
-	// var userId int64
-	// userId, err = jwt.GetUserId(c, ctx)
+	// _, err = jwt.GetUserId(c, ctx)
+	var userId int64
+	userId, err = jwt.GetUserId(c, ctx)
 	if err != nil {
 		ctx.JSON(consts.StatusOK, api.UserResponse{
 			Response: api.Response{
@@ -67,17 +67,17 @@ func UserInfo(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	userIdStr := ctx.Query("user_id")
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
-	if err != nil {
-		ctx.JSON(consts.StatusOK, api.UserResponse{
-			Response: api.Response{
-				StatusCode: int32(api.InputFormatCheckErr),
-				StatusMsg:  api.ErrorCodeToMsg[api.InputFormatCheckErr],
-			},
-		})
-		return
-	}
+	//userIdStr := ctx.Query("user_id")
+	//userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	//if err != nil {
+	//	ctx.JSON(consts.StatusOK, api.UserResponse{
+	//		Response: api.Response{
+	//			StatusCode: int32(api.InputFormatCheckErr),
+	//			StatusMsg:  api.ErrorCodeToMsg[api.InputFormatCheckErr],
+	//		},
+	//	})
+	//	return
+	//}
 
 	queryUser, err := service.GetUserServiceInstance().GetUserByUserId(userId)
 	if errors.Is(constants.UserNotExistErr, err) {

@@ -5,6 +5,16 @@ type Response struct {
 	StatusMsg  string `json:"status_msg,omitempty"`
 }
 
+type CommentActionResponse struct {
+	StatusCode int32   `json:"status_code"`
+	StatusMsg  string  `json:"status_msg,omitempty"`
+	Comment    Comment `json:"comment"`
+}
+
+type CommentListResponse struct {
+	Response
+	CommentList []Comment `json:"comment_list"`
+}
 type Video struct {
 	Id            int64  `json:"id,omitempty"`
 	Author        User   `json:"author"`

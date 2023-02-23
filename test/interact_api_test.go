@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -14,11 +15,13 @@ func TestFavorite(t *testing.T) {
 	feedResp.Value("video_list").Array().Length().Gt(0)
 	firstVideo := feedResp.Value("video_list").Array().First().Object()
 	videoId := firstVideo.Value("id").Number().Raw()
+	// videoId := firstVideo.Value("id").Number()
+	videoIdStr := fmt.Sprintf("%d", int64(videoId))
 
 	userId, token := getTestUserToken(testUserA, e)
 
 	favoriteResp := e.POST("/douyin/favorite/action/").
-		WithQuery("token", token).WithQuery("video_id", videoId).WithQuery("action_type", 1).
+		WithQuery("token", token).WithQuery("video_id", videoIdStr).WithQuery("action_type", 1).
 		WithFormField("token", token).WithFormField("video_id", videoId).WithFormField("action_type", 1).
 		Expect().
 		Status(http.StatusOK).
@@ -50,10 +53,12 @@ func TestComment(t *testing.T) {
 	firstVideo := feedResp.Value("video_list").Array().First().Object()
 	videoId := firstVideo.Value("id").Number().Raw()
 
+	videoIdStr := fmt.Sprintf("%d", int64(videoId))
+
 	_, token := getTestUserToken(testUserA, e)
 
 	addCommentResp := e.POST("/douyin/comment/action/").
-		WithQuery("token", token).WithQuery("video_id", videoId).WithQuery("action_type", 1).WithQuery("comment_text", "测试评论").
+		WithQuery("token", token).WithQuery("video_id", videoIdStr).WithQuery("action_type", 1).WithQuery("comment_text", "测试评论").
 		WithFormField("token", token).WithFormField("video_id", videoId).WithFormField("action_type", 1).WithFormField("comment_text", "测试评论").
 		Expect().
 		Status(http.StatusOK).
@@ -63,7 +68,7 @@ func TestComment(t *testing.T) {
 	commentId := int(addCommentResp.Value("comment").Object().Value("id").Number().Raw())
 
 	commentListResp := e.GET("/douyin/comment/list/").
-		WithQuery("token", token).WithQuery("video_id", videoId).
+		WithQuery("token", token).WithQuery("video_id", videoIdStr).
 		WithFormField("token", token).WithFormField("video_id", videoId).
 		Expect().
 		Status(http.StatusOK).
@@ -84,7 +89,7 @@ func TestComment(t *testing.T) {
 	assert.True(t, containTestComment, "Can't find test comment in list")
 
 	delCommentResp := e.POST("/douyin/comment/action/").
-		WithQuery("token", token).WithQuery("video_id", videoId).WithQuery("action_type", 2).WithQuery("comment_id", commentId).
+		WithQuery("token", token).WithQuery("video_id", videoIdStr).WithQuery("action_type", 2).WithQuery("comment_id", commentId).
 		WithFormField("token", token).WithFormField("video_id", videoId).WithFormField("action_type", 2).WithFormField("comment_id", commentId).
 		Expect().
 		Status(http.StatusOK).

@@ -9,7 +9,6 @@ import (
 	"github.com/YOJIA-yukino/simple-douyin-backend/internal/utils/jwt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"net/http"
 	"strconv"
 )
 
@@ -26,8 +25,8 @@ type CommentActionResponse struct {
 // CommentAction 视频评论接口
 func CommentAction(c context.Context, ctx *app.RequestContext) {
 	var err error
-	// var text string
-	// var commentId int64
+	var text string
+	var commentId int64
 
 	loginUserId, err := jwt.GetUserId(c, ctx)
 	if err != nil {
@@ -59,7 +58,7 @@ func CommentAction(c context.Context, ctx *app.RequestContext) {
 	// 对不同actionType 获取对应参数
 	switch actionType {
 	case api.PushComment:
-		text := ctx.Query("comment_text")
+		text = ctx.Query("comment_text")
 		if text == "" {
 			ctx.JSON(consts.StatusOK, api.Response{
 				StatusCode: int32(api.InputFormatCheckErr),
@@ -67,7 +66,7 @@ func CommentAction(c context.Context, ctx *app.RequestContext) {
 			})
 			return
 		}
-		err = CommentActionPush(loginUserId, videoId, text)
+		commentId, err = CommentActionPush(loginUserId, videoId, text)
 
 	case api.DeleteComment:
 		commentIdStr := ctx.Query("comment_id")
@@ -101,14 +100,40 @@ func CommentAction(c context.Context, ctx *app.RequestContext) {
 		}
 		return
 	}
-	ctx.JSON(consts.StatusOK, api.Response{
-		StatusCode: 0,
-	})
+
+	// 返回json response
+	// userInfo, err := service.GetUserServiceInstance().GetUserByUserId(loginUserId)
+	switch actionType {
+	case api.PushComment:
+		if commentId == -1 {
+			ctx.JSON(consts.StatusOK, api.Response{
+				StatusCode: int32(api.InnerDataBaseErr),
+				StatusMsg:  api.ErrorCodeToMsg[api.InnerDataBaseErr] + " & commentId Init error",
+			})
+		}
+		comment, err := service.GetCommentServiceInstance().GetCommentByCommentId(commentId)
+		if err != nil {
+			ctx.JSON(consts.StatusOK, api.Response{
+				StatusCode: int32(api.InnerDataBaseErr),
+				StatusMsg:  api.ErrorCodeToMsg[api.InnerDataBaseErr],
+			})
+		}
+		ctx.JSON(consts.StatusOK, api.CommentActionResponse{
+			StatusCode: 0,
+			Comment:    *comment,
+		})
+	case api.DeleteComment:
+		ctx.JSON(consts.StatusOK, api.Response{
+			StatusCode: 0,
+		})
+	}
+
 }
 
-func CommentActionPush(loginUserId, videoId int64, text string) error {
-	err := service.GetCommentServiceInstance().CommentInfoPush(loginUserId, videoId, text)
-	return err
+func CommentActionPush(loginUserId, videoId int64, text string) (int64, error) {
+	var commentId int64
+	commentId, err := service.GetCommentServiceInstance().CommentInfoPush(loginUserId, videoId, text)
+	return commentId, err
 }
 
 func CommentActionDelete(loginUserId, videoId, commentId int64) error {
@@ -120,7 +145,7 @@ func CommentActionDelete(loginUserId, videoId, commentId int64) error {
 func CommentList(c context.Context, ctx *app.RequestContext) {
 	//todo
 	var err error
-	loginUserId, err := jwt.GetUserId(c, ctx)
+	_, err = jwt.GetUserId(c, ctx) // loginUserId not used yet
 	if err != nil {
 		ctx.JSON(consts.StatusOK, api.Response{
 			StatusCode: int32(api.TokenInvalidErr),
@@ -138,6 +163,18 @@ func CommentList(c context.Context, ctx *app.RequestContext) {
 		return
 	}
 
-	commentList, err :=
-
+	commentList, err := service.GetCommentServiceInstance().GetCommentList(videoId)
+	if err != nil {
+		ctx.JSON(consts.StatusOK, api.Response{
+			StatusCode: int32(api.InnerDataBaseErr),
+			StatusMsg:  api.ErrorCodeToMsg[api.InnerDataBaseErr],
+		})
+		return
+	}
+	ctx.JSON(consts.StatusOK, api.CommentListResponse{
+		Response: api.Response{
+			StatusCode: 0,
+		},
+		CommentList: *commentList,
+	})
 }

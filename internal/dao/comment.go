@@ -26,8 +26,9 @@ func GetCommentDaoInstance() *commentDao {
 }
 
 // 向数据库添加一条评论
-func (*commentDao) Add(userId, videoId int64, text string) error {
-	return db.Transaction(func(tx *gorm.DB) error {
+func (*commentDao) Add(userId, videoId int64, text string) (int64, error) {
+	var id int64 = -1
+	err := db.Transaction(func(tx *gorm.DB) error {
 		var err error
 		var comment model.Comment
 		comment.CreatedAt = time.Now()
@@ -36,12 +37,13 @@ func (*commentDao) Add(userId, videoId int64, text string) error {
 		comment.Content = text
 		comment.LikeCount = 0
 		comment.TeaseCount = 0
-
 		if err = tx.Create(&comment).Error; err != nil {
 			return constants.InnerDataBaseErr
 		}
+		id = int64(comment.ID)
 		return nil
 	})
+	return id, err
 }
 
 // 数据库中删除一条评论
@@ -50,7 +52,7 @@ func (*commentDao) Del(userId, videoId, commentId int64) error {
 		var err error
 		var comment model.Comment
 
-		err = tx.Where("comment_id = ? And video_id = ? And user_id = ?", commentId, videoId, userId).
+		err = tx.Where("id = ? And video_id = ? And user_id = ?", commentId, videoId, userId).
 			First(&comment).Error
 		if errors.Is(gorm.ErrRecordNotFound, err) {
 			return constants.RecordNotExistErr
@@ -105,8 +107,17 @@ func (*commentDao) SubCommentCount(videoId int64) error {
 	})
 }
 
-// 从数据库中获取视频的评论列表 按时间降序排序
-func (*commentDao) getCommentList(videoId int64) ([]*model.Comment, error) {
+func (*commentDao) GetCommentByCommentId(commentId int64) (*model.Comment, error) {
+	var comment model.Comment
+	err := db.Where("id = ?", commentId).First(&comment).Error
+	if err != nil {
+		return nil, constants.InnerDataBaseErr
+	}
+	return &comment, nil
+}
+
+// 从数据库中获取视频的评论列表 按时间降序排序 返回指针的数组时数据可以不在内存中连续
+func (*commentDao) GetCommentList(videoId int64) ([]*model.Comment, error) {
 	comments := make([]*model.Comment, 0)
 	err := db.Where("video_id = ?", videoId).Order("created_at desc").Find(&comments).Error
 	if err != nil {

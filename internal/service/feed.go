@@ -23,7 +23,7 @@ func GetFeedServiceInstance() *feedService {
 	return feedServiceInstance
 }
 
-//Feed service层获取视频流
+// Feed service层获取视频流
 func (f *feedService) Feed(userId int64, latestTime time.Time) (int64, []api.Video, error) {
 	videos, err := dao.GetVideoDaoInstance().GetFeedList(latestTime)
 	logger.GlobalLogger.Printf("get Videos From FeedList")
@@ -39,5 +39,5 @@ func (f *feedService) Feed(userId int64, latestTime time.Time) (int64, []api.Vid
 	if err != nil {
 		return -1, nil, err
 	}
-	return videos[len(videos)-1].CreatedAt.Unix(), videoList, nil
+	return videos[len(videos)-1].CreatedAt.UnixMilli(), videoList, nil
 }

@@ -24,6 +24,10 @@ func FavoriteAction(c context.Context, ctx *app.RequestContext) {
 		})
 		return
 	}
+	// 接口文档和test文件有不同
+	// videoId := ctx.Query("video_id")
+	// actionType := ctx.Query("action_type")
+
 	videoIdStr := ctx.Query("video_id")
 	videoId, err := strconv.ParseInt(videoIdStr, 10, 64)
 	actionTypeStr := ctx.Query("action_type")

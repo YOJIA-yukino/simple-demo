@@ -59,7 +59,7 @@ func Feed(c context.Context, ctx *app.RequestContext) {
 			})
 			return
 		}
-		latestTime = time.Unix(latestTimeInt, 0)
+		latestTime = time.UnixMilli(latestTimeInt)
 	}
 
 	nextTime, videoList, err := service.GetFeedServiceInstance().Feed(userId, latestTime)
